@@ -23,7 +23,7 @@ jobs:
 
    test:
       name: Tests
-      runs-on: macos-14
+      runs-on: macos-15
       continue-on-error: true
 
       strategy:
@@ -32,13 +32,13 @@ jobs:
 
       steps:
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
            submodules: recursive
            fetch-depth: 1
            filter: tree:0
 
-      - uses: Chocobo1/setup-ccache-action@v1
+      - uses: Chocobo1/setup-ccache-action@7e813cbdf161f77737576f5c370b2810dbae058c # v1.5.7
         with:
           override_cache_key: ccache-macos-test-${{ matrix.config }}-${{ github.base_ref }}
           ccache_options: |
@@ -54,7 +54,7 @@ jobs:
         run: (cd test; b2 ${{ matrix.config }} -l400 warnings-as-errors=on debug-iterators=on invariant-checks=full asserts=on deterministic-tests)
 
       - name: run tests (flaky)
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 30
           retry_wait_seconds: 1
@@ -64,17 +64,17 @@ jobs:
 
    sim:
       name: Simulations
-      runs-on: macos-14
+      runs-on: macos-15
 
       steps:
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
            submodules: true
            fetch-depth: 1
            filter: tree:0
 
-      - uses: Chocobo1/setup-ccache-action@v1
+      - uses: Chocobo1/setup-ccache-action@7e813cbdf161f77737576f5c370b2810dbae058c # v1.5.7
         with:
           override_cache_key: ccache-macos-sim-${{ github.base_ref }}
           ccache_options: |
@@ -93,7 +93,7 @@ jobs:
 
    build:
       name: Build
-      runs-on: macos-14
+      runs-on: macos-15
       continue-on-error: true
 
       strategy:
@@ -102,13 +102,13 @@ jobs:
 
       steps:
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
            submodules: true
            fetch-depth: 1
            filter: tree:0
 
-      - uses: Chocobo1/setup-ccache-action@v1
+      - uses: Chocobo1/setup-ccache-action@7e813cbdf161f77737576f5c370b2810dbae058c # v1.5.7
         with:
           override_cache_key: ccache-macos-build-${{ matrix.config }}-${{ github.base_ref }}
           ccache_options: |
@@ -126,12 +126,12 @@ jobs:
 
    ios_build:
       name: Build iOS
-      runs-on: macos-14
+      runs-on: macos-15
       continue-on-error: true
 
       steps:
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
            submodules: true
            fetch-depth: 1
