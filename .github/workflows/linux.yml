@@ -15,17 +15,17 @@ jobs:
       # TODO: matrix across python version and os
       runs-on: ubuntu-latest
       steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: recursive
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
            python-version: 3.8
-      - uses: pre-commit/action@v2.0.0
+      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
 
    build:
       name: build
-      runs-on: ubuntu-20.04
+      runs-on: ubuntu-24.04
       continue-on-error: true
 
       strategy:
@@ -34,7 +34,7 @@ jobs:
 
       steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: recursive
 
@@ -43,7 +43,7 @@ jobs:
         run: |
           sudo apt update
 
-      - uses: Chocobo1/setup-ccache-action@v1
+      - uses: Chocobo1/setup-ccache-action@a4d08616f5b614053bce228ddf881592f69d61d4 # v1.5.9
         with:
           update_packager_index: false
           override_cache_key: ccache-linux-build-${{ github.base_ref }}-${{ matrix.config }}
@@ -76,12 +76,12 @@ jobs:
 
    fuzzers:
       name: Fuzzers
-      runs-on: ubuntu-20.04
+      runs-on: ubuntu-24.04
       continue-on-error: true
 
       steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: recursive
 
@@ -90,7 +90,7 @@ jobs:
         run: |
           sudo apt update
 
-      - uses: Chocobo1/setup-ccache-action@v1
+      - uses: Chocobo1/setup-ccache-action@a4d08616f5b614053bce228ddf881592f69d61d4 # v1.5.9
         with:
           update_packager_index: false
           override_cache_key: ccache-linux-fuzzers-${{ github.base_ref }}
@@ -116,11 +116,11 @@ jobs:
 
    check_headers:
       name: check headers
-      runs-on: ubuntu-20.04
+      runs-on: ubuntu-24.04
 
       steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: recursive
 
@@ -129,7 +129,7 @@ jobs:
         run: |
           sudo apt update
 
-      - uses: Chocobo1/setup-ccache-action@v1
+      - uses: Chocobo1/setup-ccache-action@a4d08616f5b614053bce228ddf881592f69d61d4 # v1.5.9
         with:
           update_packager_index: false
           override_cache_key: ccache-linux-check-headers-${{ github.base_ref }}
@@ -149,11 +149,11 @@ jobs:
 
    clang_tidy:
       name: clang-tidy
-      runs-on: ubuntu-20.04
+      runs-on: ubuntu-24.04
 
       steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: recursive
 
@@ -162,7 +162,7 @@ jobs:
         run: |
           sudo apt update
 
-      - uses: Chocobo1/setup-ccache-action@v1
+      - uses: Chocobo1/setup-ccache-action@a4d08616f5b614053bce228ddf881592f69d61d4 # v1.5.9
         with:
           update_packager_index: false
           override_cache_key: ccache-linux-clang-tidy-${{ github.base_ref }}
@@ -185,7 +185,7 @@ jobs:
 
    test:
       name: Tests
-      runs-on: ubuntu-20.04
+      runs-on: ubuntu-24.04
       continue-on-error: true
 
       strategy:
@@ -194,7 +194,7 @@ jobs:
 
       steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: recursive
 
@@ -203,7 +203,7 @@ jobs:
         run: |
           sudo apt update
 
-      - uses: Chocobo1/setup-ccache-action@v1
+      - uses: Chocobo1/setup-ccache-action@a4d08616f5b614053bce228ddf881592f69d61d4 # v1.5.9
         with:
           update_packager_index: false
           override_cache_key: ccache-linux-tests-${{ matrix.config }}-${{ github.base_ref }}
@@ -222,7 +222,7 @@ jobs:
           echo "using clang : 10 : clang++-10 ;" >>~/user-config.jam
 
       - name: build and run tests
-        uses: nick-invision/retry@v2
+        uses: nick-invision/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 30
           retry_wait_seconds: 4
@@ -233,11 +233,11 @@ jobs:
 
    sim:
       name: Simulations
-      runs-on: ubuntu-20.04
+      runs-on: ubuntu-24.04
 
       steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: recursive
 
@@ -246,7 +246,7 @@ jobs:
         run: |
           sudo apt update
 
-      - uses: Chocobo1/setup-ccache-action@v1
+      - uses: Chocobo1/setup-ccache-action@a4d08616f5b614053bce228ddf881592f69d61d4 # v1.5.9
         with:
           update_packager_index: false
           override_cache_key: ccache-linux-simulations-${{ github.base_ref }}
@@ -274,7 +274,7 @@ jobs:
 
       steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: recursive
 
@@ -283,7 +283,7 @@ jobs:
         run: |
           sudo apt update
 
-      - uses: Chocobo1/setup-ccache-action@v1
+      - uses: Chocobo1/setup-ccache-action@a4d08616f5b614053bce228ddf881592f69d61d4 # v1.5.9
         with:
           update_packager_index: false
           override_cache_key: ccache-linux-dist-${{ matrix.os }}-${{ github.base_ref }}
@@ -304,7 +304,7 @@ jobs:
           (cd docs; make AAFIGURE=~/.local/bin/aafigure RST2HTML=rst2html html)
           make dist
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: tarball
           path: libtorrent-rasterbar-*.tar.gz
@@ -317,7 +317,7 @@ jobs:
           cat test-install-root/lib/pkgconfig/libtorrent-rasterbar.pc
 
       - name: test-tarball (bjam)
-        uses: nick-invision/retry@v2
+        uses: nick-invision/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 30
           retry_wait_seconds: 4
