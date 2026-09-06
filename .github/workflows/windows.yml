@@ -33,7 +33,7 @@ jobs:
       steps:
 
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: true
            fetch-depth: 1
@@ -76,11 +76,11 @@ jobs:
 
    simulations:
       name: Simulations
-      runs-on: windows-2022
+      runs-on: windows-2025
 
       steps:
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: true
            fetch-depth: 1
@@ -116,7 +116,7 @@ jobs:
           b2 --hash release msvc-version-macro=on address-model=64 link=static debug-iterators=off invariant-checks=on define=BOOST_ASIO_DISABLE_IOCP asserts=on testing.execute=off
 
       - name: run sims
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           max_attempts: 3
           timeout_minutes: 120
@@ -126,7 +126,7 @@ jobs:
 
    build:
       name: Build
-      runs-on: windows-2022
+      runs-on: windows-2025
 
       strategy:
          matrix:
@@ -140,7 +140,7 @@ jobs:
 
       steps:
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: true
            fetch-depth: 1
@@ -195,7 +195,7 @@ jobs:
 
       steps:
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: true
            fetch-depth: 1
@@ -213,7 +213,7 @@ jobs:
           .\b2 headers
 
       - name: Set up MinGW
-        uses: msys2/setup-msys2@v2
+        uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
         with:
           release: false
           update: true
@@ -233,11 +233,11 @@ jobs:
 
    cmake:
       name: cmake
-      runs-on: windows-2022
+      runs-on: windows-2025
 
       steps:
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: recursive
            fetch-depth: 1
