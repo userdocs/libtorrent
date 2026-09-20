@@ -22,11 +22,11 @@ jobs:
 
       steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: recursive
 
-      - uses: Chocobo1/setup-ccache-action@v1
+      - uses: Chocobo1/setup-ccache-action@a4d08616f5b614053bce228ddf881592f69d61d4 # v1.5.9
         with:
           override_cache_key: ccache-macos-test-${{ matrix.config }}-${{ github.base_ref }}
           ccache_options: |
@@ -38,7 +38,7 @@ jobs:
           echo "using darwin ;" >>~/user-config.jam
 
       - name: build and run tests
-        uses: nick-invision/retry@v2
+        uses: nick-invision/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 30
           retry_wait_seconds: 1
@@ -53,11 +53,11 @@ jobs:
 
       steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: recursive
 
-      - uses: Chocobo1/setup-ccache-action@v1
+      - uses: Chocobo1/setup-ccache-action@a4d08616f5b614053bce228ddf881592f69d61d4 # v1.5.9
         with:
           override_cache_key: ccache-macos-sim-${{ github.base_ref }}
           ccache_options: |
@@ -85,11 +85,11 @@ jobs:
 
       steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: recursive
 
-      - uses: Chocobo1/setup-ccache-action@v1
+      - uses: Chocobo1/setup-ccache-action@a4d08616f5b614053bce228ddf881592f69d61d4 # v1.5.9
         with:
           override_cache_key: ccache-macos-build-${{ matrix.config }}-${{ github.base_ref }}
           ccache_options: |
