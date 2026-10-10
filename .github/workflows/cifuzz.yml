@@ -6,20 +6,20 @@ jobs:
     steps:
     - name: Build Fuzzers
       id: build
-      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
+      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@4af4c649704a468da115f46f70aac0ba0ccbef42 # master
       with:
         oss-fuzz-project-name: 'libtorrent'
         dry-run: false
         language: c++
     - name: Run Fuzzers
-      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
+      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@4af4c649704a468da115f46f70aac0ba0ccbef42 # master
       with:
         oss-fuzz-project-name: 'libtorrent'
         fuzz-seconds: 300
         dry-run: false
         language: c++
     - name: Upload Crash
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       if: failure() && steps.build.outcome == 'success'
       with:
         name: artifacts
