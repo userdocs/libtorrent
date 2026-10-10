@@ -22,11 +22,11 @@ jobs:
 
    android_arm32_build:
       name: Build Android Arm 32bits
-      runs-on: ubuntu-24.04
+      runs-on: ubuntu-26.04
 
       steps:
       - name: checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: true
            fetch-depth: 1
@@ -76,11 +76,11 @@ jobs:
 
    android_arm32_webtorrent_build:
       name: Build Android Arm 32bits with WebTorrent
-      runs-on: ubuntu-24.04
+      runs-on: ubuntu-26.04
 
       steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
            submodules: recursive
 
