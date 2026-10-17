@@ -24,7 +24,7 @@ jobs:
         os: [ubuntu-24.04, ubuntu-24.04-arm, macos-14, windows-latest ]
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         submodules: true
         fetch-depth: 1
@@ -42,7 +42,7 @@ jobs:
       run: |
         sudo apt update
 
-    - uses: Chocobo1/setup-ccache-action@v1
+    - uses: Chocobo1/setup-ccache-action@a4d08616f5b614053bce228ddf881592f69d61d4 # v1.5.9
       if: runner.os != 'Windows'
       with:
         update_packager_index: false
