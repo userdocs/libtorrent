@@ -76,7 +76,7 @@ void http_connect_handler_test(http_connection& c)
 	std::cout << time_now_string() << " connected to: "
 		<< print_endpoint(c.socket().remote_endpoint(ec)) << std::endl;
 // this is not necessarily true when using a proxy and proxying hostnames
-//	TEST_CHECK(c.socket().remote_endpoint(ec).address() == address::from_string("127.0.0.1", ec));
+//	TEST_CHECK(c.socket().remote_endpoint(ec).address() == make_address("127.0.0.1", ec));
 }
 
 void http_handler_test(error_code const& ec, http_parser const& parser
@@ -135,10 +135,8 @@ void run_test(std::string const& url, int size, int status, int connected
 #endif
 		);
 	h->get(url, seconds(5), &ps, 5, "test/user-agent", boost::none, resolver_flags{}, auth);
-	ios.reset();
-	error_code e;
-	ios.run(e);
-	if (e) std::cout << time_now_string() << " run failed: " << e.message() << std::endl;
+	ios.restart();
+	ios.run();
 
 	std::string const n = time_now_string();
 	std::cout << n << " connect_handler_called: " << connect_handler_called << std::endl;

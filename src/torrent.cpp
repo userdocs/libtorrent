@@ -651,8 +651,7 @@ bool is_downloading_state(int const st)
 				std::string str;
 				for (auto const& peer : p.peers)
 				{
-					error_code ec;
-					str += peer.address().to_string(ec);
+					str += peer.address().to_string();
 					str += ' ';
 				}
 				debug_log("add_torrent add_peer() [ %s] connect-candidates: %d"
@@ -1633,9 +1632,16 @@ bool is_downloading_state(int const st)
 			GENERAL_NAME* gen = aux::openssl_general_name_value(gens, i);
 			if (gen->type != GEN_DNS) continue;
 			ASN1_IA5STRING* domain = gen->d.dNSName;
-			if (domain->type != V_ASN1_IA5STRING || !domain->data || !domain->length) continue;
-			auto const* torrent_name = reinterpret_cast<char const*>(domain->data);
-			std::size_t const name_length = aux::numeric_cast<std::size_t>(domain->length);
+			if (ASN1_STRING_type(domain) != V_ASN1_IA5STRING) continue;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+			auto const* domain_data = ASN1_STRING_data(domain);
+#else
+			auto const* domain_data = ASN1_STRING_get0_data(domain);
+#endif
+			int const domain_length = ASN1_STRING_length(domain);
+			if (!domain_data || !domain_length) continue;
+			auto const* torrent_name = reinterpret_cast<char const*>(domain_data);
+			std::size_t const name_length = aux::numeric_cast<std::size_t>(domain_length);
 
 #ifndef TORRENT_DISABLE_LOGGING
 			if (i > 1) names += " | n: ";
@@ -1657,18 +1663,36 @@ bool is_downloading_state(int const st)
 
 		// no match in the alternate names, so try the common names. We should only
 		// use the "most specific" common name, which is the last one in the list.
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+		X509_NAME const* name = X509_get_subject_name(cert);
+#else
 		X509_NAME* name = X509_get_subject_name(cert);
+#endif
 		int i = -1;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 		ASN1_STRING* common_name = nullptr;
+#else
+		ASN1_STRING const* common_name = nullptr;
+#endif
 		while ((i = X509_NAME_get_index_by_NID(name, NID_commonName, i)) >= 0)
 		{
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 			X509_NAME_ENTRY* name_entry = X509_NAME_get_entry(name, i);
+#else
+			X509_NAME_ENTRY const* name_entry = X509_NAME_get_entry(name, i);
+#endif
 			common_name = X509_NAME_ENTRY_get_data(name_entry);
 		}
-		if (common_name && common_name->data && common_name->length)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+		auto const* common_name_data = common_name ? ASN1_STRING_data(common_name) : nullptr;
+#else
+		auto const* common_name_data = common_name ? ASN1_STRING_get0_data(common_name) : nullptr;
+#endif
+		int const common_name_length = common_name ? ASN1_STRING_length(common_name) : 0;
+		if (common_name_data && common_name_length)
 		{
-			auto const* torrent_name = reinterpret_cast<char const*>(common_name->data);
-			std::size_t const name_length = aux::numeric_cast<std::size_t>(common_name->length);
+			auto const* torrent_name = reinterpret_cast<char const*>(common_name_data);
+			std::size_t const name_length = aux::numeric_cast<std::size_t>(common_name_length);
 
 #ifndef TORRENT_DISABLE_LOGGING
 			if (!names.empty()) names += " | n: ";
@@ -1700,7 +1724,7 @@ bool is_downloading_state(int const st)
 		using boost::asio::ssl::context;
 
 		// this is needed for openssl < 1.0 to decrypt keys created by openssl 1.0+
-#if !defined(OPENSSL_API_COMPAT) || (OPENSSL_API_COMPAT < 0x10100000L)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 		OpenSSL_add_all_algorithms();
 #else
 		OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS | OPENSSL_INIT_ADD_ALL_DIGESTS, nullptr);
@@ -2196,11 +2220,10 @@ bool is_downloading_state(int const st)
 #ifndef TORRENT_DISABLE_LOGGING
 			if (should_log() && !m_add_torrent_params->peers.empty())
 			{
-				error_code ec;
 				std::string str;
 				for (auto const& peer : m_add_torrent_params->peers)
 				{
-					str += peer.address().to_string(ec);
+					str += peer.address().to_string();
 					str += ' ';
 				}
 				debug_log("resume-checked add_peer() [ %s] connect-candidates: %d"
@@ -2868,11 +2891,10 @@ bool is_downloading_state(int const st)
 #ifndef TORRENT_DISABLE_LOGGING
 		if (should_log() && !peers.empty())
 		{
-			error_code ec;
 			std::string str;
 			for (auto const& peer : peers)
 			{
-				str += peer.address().to_string(ec);
+				str += peer.address().to_string();
 				str += ' ';
 			}
 			debug_log("DHT add_peer() [ %s] connect-candidates: %d"
@@ -3541,16 +3563,15 @@ bool is_downloading_state(int const st)
 #ifndef TORRENT_DISABLE_LOGGING
 		if (should_log() && (!resp.peers4.empty() || !resp.peers6.empty()))
 		{
-			error_code ec;
 			std::string str;
 			for (auto const& peer : resp.peers4)
 			{
-				str += address_v4(peer.ip).to_string(ec);
+				str += address_v4(peer.ip).to_string();
 				str += ' ';
 			}
 			for (auto const& peer : resp.peers6)
 			{
-				str += address_v6(peer.ip).to_string(ec);
+				str += address_v6(peer.ip).to_string();
 				str += ' ';
 			}
 			debug_log("tracker add_peer() [ %s] connect-candidates: %d"
@@ -3778,8 +3799,7 @@ bool is_downloading_state(int const st)
 #ifndef TORRENT_DISABLE_LOGGING
 			if (should_log())
 			{
-				error_code ec;
-				debug_log("blocked ip from tracker: %s", host.address().to_string(ec).c_str());
+				debug_log("blocked ip from tracker: %s", host.address().to_string().c_str());
 			}
 #endif
 			if (m_ses.alerts().should_post<peer_blocked_alert>())
@@ -3795,9 +3815,8 @@ bool is_downloading_state(int const st)
 #ifndef TORRENT_DISABLE_LOGGING
 			if (should_log())
 			{
-				error_code ec;
 				debug_log("name-lookup add_peer() [ %s ] connect-candidates: %d"
-					, host.address().to_string(ec).c_str()
+					, host.address().to_string().c_str()
 					, m_peer_list ? m_peer_list->num_connect_candidates() : -1);
 			}
 #endif
@@ -4579,8 +4598,7 @@ bool is_downloading_state(int const st)
 			m_peer_class = peer_class_t{0};
 		}
 
-		error_code ec;
-		m_inactivity_timer.cancel(ec);
+		m_inactivity_timer.cancel();
 
 #ifndef TORRENT_DISABLE_LOGGING
 		log_to_all_peers("aborting");
@@ -4873,7 +4891,7 @@ bool is_downloading_state(int const st)
 			// this gives the client a chance to specify multiple time-critical
 			// pieces before libtorrent cancels requests
 			auto self = shared_from_this();
-			m_ses.get_io_service().post([self] { self->wrap(&torrent::cancel_non_critical); });
+			boost::asio::post(m_ses.get_io_service(), [self] { self->wrap(&torrent::cancel_non_critical); });
 		}
 
 		for (auto i = m_time_critical_pieces.begin()
@@ -9254,12 +9272,11 @@ bool is_downloading_state(int const st)
 
 		// don't re-issue the timer if it's the same expiration time as last time
 		// if m_waiting_tracker is 0, expires_at() is undefined
-		if (m_waiting_tracker && m_tracker_timer.expires_at() == next_announce) return;
+		if (m_waiting_tracker && m_tracker_timer.expiry() == next_announce) return;
 
-		error_code ec;
 		auto self = shared_from_this();
 
-		m_tracker_timer.expires_at(next_announce, ec);
+		m_tracker_timer.expires_at(next_announce);
 		ADD_OUTSTANDING_ASYNC("tracker::on_tracker_announce");
 		++m_waiting_tracker;
 		m_tracker_timer.async_wait([self](error_code const& e)
@@ -9334,8 +9351,7 @@ bool is_downloading_state(int const st)
 		TORRENT_ASSERT(is_single_thread());
 		if (!m_announcing) return;
 
-		error_code ec;
-		m_tracker_timer.cancel(ec);
+		m_tracker_timer.cancel();
 
 		m_announcing = false;
 
@@ -9528,7 +9544,7 @@ bool is_downloading_state(int const st)
 			if (is_inactive != m_inactive && !m_pending_active_change)
 			{
 				int const delay = settings().get_int(settings_pack::auto_manage_startup);
-				m_inactivity_timer.expires_from_now(seconds(delay));
+				m_inactivity_timer.expires_after(seconds(delay));
 				m_inactivity_timer.async_wait([self](error_code const& ec) {
 					self->wrap(&torrent::on_inactivity_tick, ec); });
 				m_pending_active_change = true;
@@ -11089,10 +11105,10 @@ bool is_downloading_state(int const st)
 		st->download_payload_rate = m_stat.download_payload_rate();
 		st->upload_payload_rate = m_stat.upload_payload_rate();
 
-		if (is_paused() || m_tracker_timer.expires_at() < now)
+		if (is_paused() || m_tracker_timer.expiry() < now)
 			st->next_announce = seconds(0);
 		else
-			st->next_announce = m_tracker_timer.expires_at() - now;
+			st->next_announce = m_tracker_timer.expiry() - now;
 
 		if (st->next_announce.count() < 0)
 			st->next_announce = seconds(0);

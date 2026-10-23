@@ -35,6 +35,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "libtorrent/address.hpp"
 #include "libtorrent/io_service.hpp"
 #include "libtorrent/error_code.hpp"
+#include "libtorrent/aux_/disable_warnings_push.hpp"
+#include <boost/asio/post.hpp>
+#include "libtorrent/aux_/disable_warnings_pop.hpp"
 #include "libtorrent/socket.hpp"
 #include "libtorrent/socket_io.hpp"
 #include "libtorrent/io.hpp"
@@ -216,7 +219,7 @@ struct udp_tracker
 	{
 		std::printf("%s: UDP tracker [%p], ~udp_tracker\n"
 			, time_now_string().c_str(), static_cast<void*>(this));
-		m_ios.post(std::bind(&udp_tracker::stop, this));
+		boost::asio::post(m_ios, std::bind(&udp_tracker::stop, this));
 		if (m_thread) m_thread->join();
 	}
 
@@ -228,19 +231,12 @@ struct udp_tracker
 	{
 		char buffer[2000];
 
-		error_code ec;
 		udp::endpoint from;
 		m_socket.async_receive_from(
 			boost::asio::buffer(buffer, int(sizeof(buffer))), from, 0
 			, std::bind(&udp_tracker::on_udp_receive, this, _1, _2, &from, &buffer[0], int(sizeof(buffer))));
 
-		m_ios.run(ec);
-
-		if (ec)
-		{
-			std::printf("UDP Error running UDP tracker service: %s\n", ec.message().c_str());
-			return;
-		}
+		m_ios.run();
 
 		std::printf("UDP exiting UDP tracker [%p] thread\n", static_cast<void*>(this));
 	}
