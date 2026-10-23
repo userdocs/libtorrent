@@ -231,11 +231,11 @@ namespace libtorrent {
 	}
 #endif
 
-	void i2p_stream::do_connect(error_code const& e, tcp::resolver::iterator i
+	void i2p_stream::do_connect(error_code const& e, tcp::resolver::results_type i
 		, handler_type h)
 	{
 		TORRENT_ASSERT(m_magic == 0x1337);
-		if (e || i == tcp::resolver::iterator())
+		if (e || i.empty())
 		{
 			h(e);
 			error_code ec;
@@ -244,7 +244,7 @@ namespace libtorrent {
 		}
 
 		ADD_OUTSTANDING_ASYNC("i2p_stream::connected");
-		m_sock.async_connect(i->endpoint(), std::bind(
+		m_sock.async_connect(i.begin()->endpoint(), std::bind(
 			&i2p_stream::connected, this, _1, std::move(h)));
 	}
 

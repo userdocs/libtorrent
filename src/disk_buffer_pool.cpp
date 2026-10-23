@@ -123,7 +123,7 @@ namespace libtorrent {
 		std::vector<std::weak_ptr<disk_observer>> cbs;
 		m_observers.swap(cbs);
 		l.unlock();
-		m_ios.post(std::bind(&watermark_callback, std::move(cbs)));
+		boost::asio::post(m_ios, std::bind(&watermark_callback, std::move(cbs)));
 	}
 
 #if TORRENT_USE_ASSERTS

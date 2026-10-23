@@ -131,9 +131,9 @@ public:
 	}
 #endif
 
-	error_code non_blocking(bool b, error_code& ec)
+	void non_blocking(bool b, error_code& ec)
 	{
-		return m_sock.non_blocking(b, ec);
+		m_sock.non_blocking(b, ec);
 	}
 
 #ifndef BOOST_NO_EXCEPTIONS
@@ -145,9 +145,9 @@ public:
 #endif
 
 	template <class SettableSocketOption>
-	error_code set_option(SettableSocketOption const& opt, error_code& ec)
+	void set_option(SettableSocketOption const& opt, error_code& ec)
 	{
-		return m_sock.set_option(opt, ec);
+		m_sock.set_option(opt, ec);
 	}
 
 #ifndef BOOST_NO_EXCEPTIONS
@@ -159,9 +159,9 @@ public:
 #endif
 
 	template <class GettableSocketOption>
-	error_code get_option(GettableSocketOption& opt, error_code& ec)
+	void get_option(GettableSocketOption& opt, error_code& ec)
 	{
-		return m_sock.get_option(opt, ec);
+		m_sock.get_option(opt, ec);
 	}
 
 #ifndef BOOST_NO_EXCEPTIONS
@@ -171,9 +171,14 @@ public:
 	}
 #endif
 
-	error_code cancel(error_code& ec)
+	void cancel()
 	{
-		return m_sock.cancel(ec);
+		m_sock.cancel();
+	}
+
+	void cancel(error_code& ec)
+	{
+		m_sock.cancel(ec);
 	}
 
 	void bind(endpoint_type const& /* endpoint */, error_code& /* ec */)

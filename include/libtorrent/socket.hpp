@@ -90,7 +90,6 @@ namespace libtorrent {
 	using udp = boost::asio::ip::udp;
 	using boost::asio::async_write;
 	using boost::asio::async_read;
-	using null_buffers = boost::asio::null_buffers;
 #endif
 
 	// internal

@@ -139,7 +139,7 @@ void http_connection::get(std::string const& url, time_duration timeout
 
 	if (ec)
 	{
-		lt::get_io_service(m_timer).post(std::bind(&http_connection::callback
+		boost::asio::post(lt::get_io_service(m_timer), std::bind(&http_connection::callback
 			, me, ec, span<char>{}));
 		return;
 	}
@@ -147,7 +147,7 @@ void http_connection::get(std::string const& url, time_duration timeout
 	if (m_hostname_filter_handler && !m_hostname_filter_handler(*this, hostname))
 	{
 		ec.assign(errors::blocked_by_idna, libtorrent_category());
-		lt::get_io_service(m_timer).post(std::bind(&http_connection::callback
+		boost::asio::post(lt::get_io_service(m_timer), std::bind(&http_connection::callback
 			, me, ec, span<char>{}));
 		return;
 	}
@@ -159,7 +159,7 @@ void http_connection::get(std::string const& url, time_duration timeout
 		)
 	{
 		error_code err(errors::unsupported_url_protocol);
-		lt::get_io_service(m_timer).post(std::bind(&http_connection::callback
+		boost::asio::post(lt::get_io_service(m_timer), std::bind(&http_connection::callback
 			, me, err, span<char>{}));
 		return;
 	}
@@ -237,8 +237,7 @@ void http_connection::start(std::string const& hostname, int port
 	std::shared_ptr<http_connection> me(shared_from_this());
 
 	m_completion_timeout = timeout;
-	error_code ec;
-	m_timer.expires_from_now(m_completion_timeout, ec);
+	m_timer.expires_after(m_completion_timeout);
 	ADD_OUTSTANDING_ASYNC("http_connection::on_timeout");
 	m_timer.async_wait(std::bind(&http_connection::on_timeout
 		, std::weak_ptr<http_connection>(me), _1));
@@ -251,13 +250,6 @@ void http_connection::start(std::string const& hostname, int port
 	TORRENT_ASSERT(!ssl || m_ssl_ctx != nullptr);
 #endif
 
-	if (ec)
-	{
-		lt::get_io_service(m_timer).post(std::bind(&http_connection::callback
-			, me, ec, span<char>{}));
-		return;
-	}
-
 	if (m_sock.is_open() && m_hostname == hostname && m_port == port
 		&& m_ssl == ssl && m_bind_addr == bind_addr)
 	{
@@ -269,8 +261,8 @@ void http_connection::start(std::string const& hostname, int port
 	{
 		m_ssl = ssl;
 		m_bind_addr = bind_addr;
-		error_code err;
-		if (m_sock.is_open()) m_sock.close(err);
+		error_code ec;
+		if (m_sock.is_open()) m_sock.close(ec);
 
 		aux::proxy_settings const* proxy = ps;
 
@@ -291,7 +283,7 @@ void http_connection::start(std::string const& hostname, int port
 #if TORRENT_USE_I2P
 			if (i2p_conn->proxy().type != settings_pack::i2p_proxy)
 			{
-				lt::get_io_service(m_timer).post(std::bind(&http_connection::callback
+				boost::asio::post(lt::get_io_service(m_timer), std::bind(&http_connection::callback
 					, me, error_code(errors::no_i2p_router), span<char>{}));
 				return;
 			}
@@ -337,7 +329,7 @@ void http_connection::start(std::string const& hostname, int port
 			m_sock.bind(tcp::endpoint(m_bind_addr->ip, 0), ec);
 			if (ec)
 			{
-				lt::get_io_service(m_timer).post(std::bind(&http_connection::callback
+				boost::asio::post(lt::get_io_service(m_timer), std::bind(&http_connection::callback
 					, me, ec, span<char>{}));
 				return;
 			}
@@ -346,7 +338,7 @@ void http_connection::start(std::string const& hostname, int port
 		setup_ssl_hostname(m_sock, hostname, ec);
 		if (ec)
 		{
-			lt::get_io_service(m_timer).post(std::bind(&http_connection::callback
+			boost::asio::post(lt::get_io_service(m_timer), std::bind(&http_connection::callback
 				, me, ec, span<char>{}));
 			return;
 		}
@@ -408,8 +400,7 @@ void http_connection::on_timeout(std::weak_ptr<http_connection> p
 		&& (c->m_start_time + (c->m_completion_timeout * 2) > now))
 	{
 		ADD_OUTSTANDING_ASYNC("http_connection::on_timeout");
-		error_code ec;
-		c->m_timer.expires_at(c->m_start_time + c->m_completion_timeout * 2, ec);
+		c->m_timer.expires_at(c->m_start_time + c->m_completion_timeout * 2);
 		c->m_timer.async_wait(std::bind(&http_connection::on_timeout, p, _1));
 		return;
 	}
@@ -439,8 +430,7 @@ void http_connection::on_timeout(std::weak_ptr<http_connection> p
 	}
 
 	ADD_OUTSTANDING_ASYNC("http_connection::on_timeout");
-	error_code ec;
-	c->m_timer.expires_at(c->m_start_time + c->m_completion_timeout, ec);
+	c->m_timer.expires_at(c->m_start_time + c->m_completion_timeout);
 	c->m_timer.async_wait(std::bind(&http_connection::on_timeout, p, _1));
 }
 
@@ -452,15 +442,15 @@ void http_connection::close(bool force)
 	if (force)
 	{
 		m_sock.close(ec);
-		m_timer.cancel(ec);
+		m_timer.cancel();
 	}
 	else
 	{
 		async_shutdown(m_sock, shared_from_this());
-		m_timer.cancel(ec);
+		m_timer.cancel();
 	}
 
-	m_limiter_timer.cancel(ec);
+	m_limiter_timer.cancel();
 
 	m_hostname.clear();
 	m_port = 0;
@@ -654,8 +644,7 @@ void http_connection::callback(error_code e, span<char> data)
 		if (m_parser.finished()) e.clear();
 	}
 	m_called = true;
-	error_code ec;
-	m_timer.cancel(ec);
+	m_timer.cancel();
 	if (m_handler) m_handler(e, m_parser, data, *this);
 }
 
@@ -804,8 +793,7 @@ void http_connection::on_read(error_code const& e
 		}
 		else if (m_bottled && m_parser.finished())
 		{
-			error_code ec;
-			m_timer.cancel(ec);
+			m_timer.cancel();
 			callback(e, span<char>(m_recvbuffer)
 				.first(m_read_pos)
 				.subspan(m_parser.body_start()));
@@ -882,9 +870,8 @@ void http_connection::on_assign_bandwidth(error_code const& e)
 		, std::bind(&http_connection::on_read
 			, shared_from_this(), _1, _2));
 
-	error_code ec;
 	m_limiter_timer_active = true;
-	m_limiter_timer.expires_from_now(milliseconds(250), ec);
+	m_limiter_timer.expires_after(milliseconds(250));
 	ADD_OUTSTANDING_ASYNC("http_connection::on_assign_bandwidth");
 	m_limiter_timer.async_wait(std::bind(&http_connection::on_assign_bandwidth
 		, shared_from_this(), _1));
@@ -896,9 +883,8 @@ void http_connection::rate_limit(int limit)
 
 	if (!m_limiter_timer_active)
 	{
-		error_code ec;
 		m_limiter_timer_active = true;
-		m_limiter_timer.expires_from_now(milliseconds(250), ec);
+		m_limiter_timer.expires_after(milliseconds(250));
 		ADD_OUTSTANDING_ASYNC("http_connection::on_assign_bandwidth");
 		m_limiter_timer.async_wait(std::bind(&http_connection::on_assign_bandwidth
 			, shared_from_this(), _1));

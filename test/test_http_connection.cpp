@@ -135,10 +135,8 @@ void run_test(std::string const& url, int size, int status, int connected
 #endif
 		);
 	h->get(url, seconds(5), &ps, 5, "test/user-agent", boost::none, resolver_flags{}, auth);
-	ios.reset();
-	error_code e;
-	ios.run(e);
-	if (e) std::cout << time_now_string() << " run failed: " << e.message() << std::endl;
+	ios.restart();
+	ios.run();
 
 	std::string const n = time_now_string();
 	std::cout << n << " connect_handler_called: " << connect_handler_called << std::endl;

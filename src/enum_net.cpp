@@ -625,8 +625,8 @@ int _System __libsocket_sysctl(int* mib, u_int namelen, void *oldp, size_t *oldl
 			}
 			return b1 == b2;
 		}
-		return (a1.to_v4().to_ulong() & mask.to_v4().to_ulong())
-			== (a2.to_v4().to_ulong() & mask.to_v4().to_ulong());
+		return (a1.to_v4().to_uint() & mask.to_v4().to_uint())
+			== (a2.to_v4().to_uint() & mask.to_v4().to_uint());
 	}
 
 	std::vector<ip_interface> enum_net_interfaces(io_service& ios, error_code& ec)
@@ -1259,9 +1259,9 @@ int _System __libsocket_sysctl(int* mib, u_int namelen, void *oldp, size_t *oldl
 			{
 
 				ip_route r;
-				r.destination = address::from_string(adapter->IpAddressList.IpAddress.String, ec);
-				r.gateway = address::from_string(adapter->GatewayList.IpAddress.String, ec);
-				r.netmask = address::from_string(adapter->IpAddressList.IpMask.String, ec);
+				r.destination = make_address(adapter->IpAddressList.IpAddress.String, ec);
+				r.gateway = make_address(adapter->GatewayList.IpAddress.String, ec);
+				r.netmask = make_address(adapter->IpAddressList.IpMask.String, ec);
 				strncpy(r.name, adapter->AdapterName, sizeof(r.name) - 1);
 				r.name[sizeof(r.name) - 1] = '\0';
 

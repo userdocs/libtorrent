@@ -43,12 +43,7 @@ namespace sim { namespace asio {
 }}
 #else
 namespace boost { namespace asio {
-#if BOOST_VERSION < 106600
-	class io_service;
-#else
 	class io_context;
-	typedef io_context io_service;
-#endif
 }}
 #endif
 
@@ -57,7 +52,7 @@ namespace libtorrent {
 #if defined TORRENT_BUILD_SIMULATOR
 	using io_service = sim::asio::io_service;
 #else
-	using io_service = boost::asio::io_service;
+	using io_service = boost::asio::io_context;
 #endif
 
 #if BOOST_VERSION >= 107000 && !defined TORRENT_BUILD_SIMULATOR
