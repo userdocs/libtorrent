@@ -55,7 +55,7 @@ jobs:
             python-version: 3.9
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         submodules: true
         fetch-depth: 1
@@ -68,7 +68,7 @@ jobs:
     #  - setup-python sets up PATH so 'python' and 'python3' point to the
     #    requested version on mac and linux, but on windows it only sets up
     #    'python'.
-    - uses: actions/setup-python@v2
+    - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
       with:
          python-version: ${{ matrix.python-version }}
 
@@ -89,7 +89,7 @@ jobs:
       run: |
         sudo apt update
 
-    - uses: Chocobo1/setup-ccache-action@v1
+    - uses: Chocobo1/setup-ccache-action@efeb0f4b0670854c2190fd2389da92c399ff5ceb # v1.5.10
       if: runner.os != 'Windows'
       with:
         update_packager_index: false
