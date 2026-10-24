@@ -5,7 +5,7 @@
   "extends": [
     "github>userdocs/renovate:default.json"
   ],
-  "baseBranches": [
+  "baseBranchPatterns": [
     "RC_1_2",
     "RC_2_0",
     "RC_2_1"
