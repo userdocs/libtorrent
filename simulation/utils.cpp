@@ -64,8 +64,8 @@ void enable_enc(lt::session& ses)
 void filter_ips(lt::session& ses)
 {
 	ip_filter filter;
-	filter.add_rule(address_v4::from_string("50.0.0.1")
-		, address_v4::from_string("50.0.0.2"), ip_filter::blocked);
+	filter.add_rule(make_address_v4("50.0.0.1")
+		, make_address_v4("50.0.0.2"), ip_filter::blocked);
 	ses.set_ip_filter(filter);
 }
 
@@ -154,10 +154,10 @@ void print_alerts(lt::session& ses
 	} ); } );
 }
 
-std::unique_ptr<sim::asio::io_service> make_io_service(sim::simulation& sim, int i)
+std::unique_ptr<sim::asio::io_context> make_io_service(sim::simulation& sim, int i)
 {
 	char ep[30];
 	std::snprintf(ep, sizeof(ep), "50.0.%d.%d", (i + 1) >> 8, (i + 1) & 0xff);
-	return std::unique_ptr<sim::asio::io_service>(new sim::asio::io_service(
-		sim, lt::address_v4::from_string(ep)));
+	return std::unique_ptr<sim::asio::io_context>(new sim::asio::io_context(
+		sim, lt::make_address_v4(ep)));
 }

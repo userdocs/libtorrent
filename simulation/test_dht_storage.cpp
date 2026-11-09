@@ -99,14 +99,13 @@ void test_expiration(simulation& sim
 	, std::unique_ptr<dht_storage_interface>& s
 	, dht_storage_counters const& c)
 {
-	sim::asio::io_service ios(sim, addr("10.0.0.1"));
+	sim::asio::io_context ios(sim, addr("10.0.0.1"));
 
 	sim::asio::high_resolution_timer timer(ios);
 	timer.expires_after(expiry_time);
 	timer.async_wait(std::bind(&timer_tick, s.get(), c, _1));
 
-	boost::system::error_code ec;
-	sim.run(ec);
+	sim.run();
 }
 
 TORRENT_TEST(dht_storage_counters)
@@ -170,7 +169,7 @@ TORRENT_TEST(dht_storage_infohashes_sample)
 {
 	default_config cfg;
 	simulation sim(cfg);
-	sim::asio::io_service ios(sim, addr("10.0.0.1"));
+	sim::asio::io_context ios(sim, addr("10.0.0.1"));
 
 	dht::dht_settings sett = test_settings();
 	sett.max_torrents = 5;
@@ -211,8 +210,7 @@ TORRENT_TEST(dht_storage_infohashes_sample)
 		TEST_EQUAL(r, 0);
 	});
 
-	boost::system::error_code ec;
-	sim.run(ec);
+	sim.run();
 }
 #else
 TORRENT_TEST(disabled) {}

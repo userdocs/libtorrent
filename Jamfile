@@ -25,25 +25,17 @@ if $(BOOST_ROOT)
 	ECHO "building boost from source directory: " $(BOOST_ROOT) ;
 
 	use-project /boost : $(BOOST_ROOT) ;
-	alias boost_system : /boost/system//boost_system : : : <include>$(BOOST_ROOT) ;
+	alias boost_system : : : : <include>$(BOOST_ROOT) ;
 }
 else
 {
-	local boost-lib-search-path =
-		<search>/usr/local/opt/boost/lib
-		<search>/opt/homebrew/lib
-		;
-
 	local boost-include-path =
 		<include>/usr/local/opt/boost/include
 		<include>/opt/homebrew/include
-	;
+		;
 
-	# the names are decorated in MacPorts.
-	lib boost_system : : <target-os>darwin <name>boost_system-mt $(boost-lib-search-path)
-		: : $(boost-include-path) ;
-
-	lib boost_system : : <name>boost_system ;
+	# boost_system is a header-only library now, but we still need to find the boost headers
+	alias boost_system : : : : $(boost-include-path) ;
 }
 
 # we need version numbers in the form X.Y.Z in order to trigger the built-in
@@ -456,7 +448,7 @@ feature picker-debugging : off on : composite propagated link-incompatible ;
 feature.compose <picker-debugging>on : <define>TORRENT_DEBUG_REFCOUNTS ;
 
 feature simulator : off on : composite propagated link-incompatible ;
-feature.compose <simulator>on : <define>TORRENT_BUILD_SIMULATOR ;
+feature.compose <simulator>on : <define>TORRENT_BUILD_SIMULATOR <define>BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT ;
 
 feature invariant-checks : off on full : composite propagated link-incompatible ;
 feature.compose <invariant-checks>on : <define>TORRENT_USE_INVARIANT_CHECKS=1 ;

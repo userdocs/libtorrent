@@ -1229,7 +1229,7 @@ namespace aux {
 			struct work_thread_t
 			{
 				work_thread_t()
-					: work(new io_work_guard(boost::asio::make_work_guard(ios)))
+					: work(boost::asio::make_work_guard(ios))
 					, thread([this] { ios.run(); })
 				{}
 				~work_thread_t()
@@ -1241,7 +1241,7 @@ namespace aux {
 				work_thread_t& operator=(work_thread_t const&) = delete;
 
 				boost::asio::io_context ios;
-				std::unique_ptr<io_work_guard> work;
+				boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work;
 				std::thread thread;
 			};
 			std::unique_ptr<work_thread_t> m_torrent_load_thread;

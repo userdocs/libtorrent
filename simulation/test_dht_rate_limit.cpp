@@ -101,17 +101,17 @@ TORRENT_TEST(dht_rate_limit)
 
 	default_config cfg;
 	simulation sim(cfg);
-	asio::io_service dht_ios(sim, address_v4::from_string("40.30.20.10"));
+	asio::io_context dht_ios(sim, make_address_v4("40.30.20.10"));
 
 	// receiver (the DHT under test)
 	lt::udp_socket sock(dht_ios, lt::aux::listen_socket_handle{});
 	obs o;
 	auto ls = std::make_shared<lt::aux::listen_socket_t>();
-	ls->external_address.cast_vote(address_v4::from_string("40.30.20.10")
+	ls->external_address.cast_vote(make_address_v4("40.30.20.10")
 		, lt::aux::session_interface::source_dht, lt::address());
-	ls->local_endpoint = tcp::endpoint(address_v4::from_string("40.30.20.10"), 8888);
+	ls->local_endpoint = tcp::endpoint(make_address_v4("40.30.20.10"), 8888);
 	error_code ec;
-	sock.bind(udp::endpoint(address_v4::from_string("40.30.20.10"), 8888), ec);
+	sock.bind(udp::endpoint(make_address_v4("40.30.20.10"), 8888), ec);
 	dht::settings dhtsett;
 	dhtsett.block_ratelimit = 100000; // disable the DOS blocker
 	dhtsett.ignore_dark_internet = false;
@@ -128,8 +128,8 @@ TORRENT_TEST(dht_rate_limit)
 	dht->new_socket(ls);
 
 	bool stop = false;
-	std::function<void(error_code const&, size_t)> on_read
-		= [&](error_code const& ec, size_t const /* bytes */)
+	std::function<void(error_code const&)> on_read
+		= [&](error_code const& ec)
 	{
 		if (ec) return;
 		udp_socket::packet p;
@@ -143,7 +143,7 @@ TORRENT_TEST(dht_rate_limit)
 
 	// sender
 	int num_packets_sent = 0;
-	asio::io_service sender_ios(sim, address_v4::from_string("10.20.30.40"));
+	asio::io_context sender_ios(sim, make_address_v4("10.20.30.40"));
 	udp::socket sender_sock(sender_ios);
 	sender_sock.open(udp::v4());
 	sender_sock.bind(udp::endpoint(address_v4(), 4444));
@@ -166,8 +166,8 @@ TORRENT_TEST(dht_rate_limit)
 		}
 
 		char const packet[] = "d1:ad2:id20:ababababababababababe1:y1:q1:q4:pinge";
-		sender_sock.send_to(asio::const_buffers_1(packet, sizeof(packet)-1)
-			, udp::endpoint(address_v4::from_string("40.30.20.10"), 8888));
+		sender_sock.send_to(asio::buffer(packet, sizeof(packet)-1)
+			, udp::endpoint(make_address_v4("40.30.20.10"), 8888));
 		++num_packets_sent;
 
 		timer.expires_after(chrono::milliseconds(10));
@@ -188,10 +188,10 @@ TORRENT_TEST(dht_rate_limit)
 		num_bytes_received += int(bytes);
 		++num_packets_received;
 
-		sender_sock.async_receive_from(asio::mutable_buffers_1(buffer, sizeof(buffer))
+		sender_sock.async_receive_from(asio::buffer(buffer, sizeof(buffer))
 			, from, on_receive);
 	};
-	sender_sock.async_receive_from(asio::mutable_buffers_1(buffer, sizeof(buffer))
+	sender_sock.async_receive_from(asio::buffer(buffer, sizeof(buffer))
 		, from, on_receive);
 
 	// run simulation
@@ -228,17 +228,17 @@ TORRENT_TEST(dht_delete_socket)
 
 	sim::default_config cfg;
 	sim::simulation sim(cfg);
-	sim::asio::io_service dht_ios(sim, lt::address_v4::from_string("40.30.20.10"));
+	sim::asio::io_context dht_ios(sim, lt::make_address_v4("40.30.20.10"));
 
 	lt::udp_socket sock(dht_ios, lt::aux::listen_socket_handle{});
 	error_code ec;
-	sock.bind(udp::endpoint(address_v4::from_string("40.30.20.10"), 8888), ec);
+	sock.bind(udp::endpoint(make_address_v4("40.30.20.10"), 8888), ec);
 
 	obs o;
 	auto ls = std::make_shared<lt::aux::listen_socket_t>();
-	ls->external_address.cast_vote(address_v4::from_string("40.30.20.10")
+	ls->external_address.cast_vote(make_address_v4("40.30.20.10")
 		, lt::aux::session_interface::source_dht, lt::address());
-	ls->local_endpoint = tcp::endpoint(address_v4::from_string("40.30.20.10"), 8888);
+	ls->local_endpoint = tcp::endpoint(make_address_v4("40.30.20.10"), 8888);
 	dht::settings dhtsett;
 	counters cnt;
 	dht::dht_state state;

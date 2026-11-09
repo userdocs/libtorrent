@@ -55,7 +55,7 @@ void run_fake_peer_test(
 	sim::default_config cfg;
 	sim::simulation sim{cfg};
 
-	sim::asio::io_service ios(sim, lt::address_v4::from_string("50.0.0.1"));
+	sim::asio::io_context ios(sim, lt::make_address_v4("50.0.0.1"));
 	lt::session_proxy zombie;
 
 	// setup settings pack to use for the session (customization point)
@@ -95,7 +95,7 @@ void run_fake_peer_test(
 struct idle_peer
 {
 	idle_peer(simulation& sim, char const* ip)
-		: m_ios(sim, asio::ip::address::from_string(ip))
+		: m_ios(sim, asio::ip::make_address(ip))
 	{
 		boost::system::error_code ec;
 		m_acceptor.open(asio::ip::tcp::v4(), ec);
@@ -142,7 +142,7 @@ struct idle_peer
 
 	bool accepted() const { return m_accepted; }
 
-	asio::io_service m_ios;
+	asio::io_context m_ios;
 	asio::ip::tcp::acceptor m_acceptor{m_ios};
 	asio::ip::tcp::socket m_socket{m_ios};
 
@@ -152,7 +152,7 @@ struct idle_peer
 
 lt::time_duration run_timeout_sim(sim::simulation& sim)
 {
-	sim::asio::io_service ios(sim, lt::address_v4::from_string("50.0.0.1"));
+	sim::asio::io_context ios(sim, lt::make_address_v4("50.0.0.1"));
 	lt::session_proxy zombie;
 
 	// setup settings pack to use for the session (customization point)

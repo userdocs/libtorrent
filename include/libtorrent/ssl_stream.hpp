@@ -143,9 +143,9 @@ public:
 #endif
 
 	template <class SettableSocketOption>
-	error_code set_option(SettableSocketOption const& opt, error_code& ec)
+	void set_option(SettableSocketOption const& opt, error_code& ec)
 	{
-		return m_sock.next_layer().set_option(opt, ec);
+		m_sock.next_layer().set_option(opt, ec);
 	}
 
 #ifndef BOOST_NO_EXCEPTIONS
@@ -157,9 +157,9 @@ public:
 #endif
 
 	template <class GettableSocketOption>
-	error_code get_option(GettableSocketOption& opt, error_code& ec)
+	void get_option(GettableSocketOption& opt, error_code& ec)
 	{
-		return m_sock.next_layer().get_option(opt, ec);
+		m_sock.next_layer().get_option(opt, ec);
 	}
 
 #ifndef BOOST_NO_EXCEPTIONS
@@ -186,8 +186,8 @@ public:
 	void non_blocking(bool b) { m_sock.next_layer().non_blocking(b); }
 #endif
 
-	error_code non_blocking(bool b, error_code& ec)
-	{ return m_sock.next_layer().non_blocking(b, ec); }
+	void non_blocking(bool b, error_code& ec)
+	{ m_sock.next_layer().non_blocking(b, ec); }
 
 	template <class Const_Buffers, class Handler>
 	void async_write_some(Const_Buffers const& buffers, Handler handler)
