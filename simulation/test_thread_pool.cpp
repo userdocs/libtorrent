@@ -41,7 +41,7 @@ struct test_threads : lt::pool_thread_interface
 	test_threads() {}
 
 	void notify_all() override { m_cond.notify_all(); }
-	void thread_fun(lt::disk_io_thread_pool&, lt::io_service::work) override
+	void thread_fun(lt::disk_io_thread_pool&, lt::io_work_guard) override
 	{
 		std::unique_lock<std::mutex> l(m_mutex);
 		for (;;)
@@ -115,7 +115,7 @@ TORRENT_TEST(disk_io_thread_pool_idle_reaping)
 	sim::simulation sim{ cfg };
 
 	test_threads threads;
-	sim::asio::io_service ios(sim);
+	sim::asio::io_context ios(sim);
 	lt::disk_io_thread_pool pool(threads, ios);
 	threads.m_pool = &pool;
 	pool.set_max_threads(3);
@@ -129,7 +129,7 @@ TORRENT_TEST(disk_io_thread_pool_idle_reaping)
 	lt::deadline_timer idle_delay(ios);
 	// the thread will be killed the second time the reaper runs and we need
 	// to wait one extra minute to make sure the check runs after the reaper
-	idle_delay.expires_from_now(std::chrono::minutes(3));
+	idle_delay.expires_after(std::chrono::minutes(3));
 	idle_delay.async_wait([&](lt::error_code const&)
 	{
 		// this is a kludge to work around a race between the thread
@@ -141,11 +141,11 @@ TORRENT_TEST(disk_io_thread_pool_idle_reaping)
 		sim.stop();
 	});
 	sim.run();
-	sim.reset();
+	sim.restart();
 
 	// now kill the rest
 	threads.set_active_threads(0);
-	idle_delay.expires_from_now(std::chrono::minutes(3));
+	idle_delay.expires_after(std::chrono::minutes(3));
 	idle_delay.async_wait([&](lt::error_code const&)
 	{
 		// see comment above about this kludge
@@ -162,7 +162,7 @@ TORRENT_TEST(disk_io_thread_pool_abort_wait)
 	sim::simulation sim{ cfg };
 
 	test_threads threads;
-	sim::asio::io_service ios(sim);
+	sim::asio::io_context ios(sim);
 	lt::disk_io_thread_pool pool(threads, ios);
 	threads.m_pool = &pool;
 	pool.set_max_threads(3);
@@ -181,7 +181,7 @@ TORRENT_TEST(disk_io_thread_pool_abort_no_wait)
 	sim::simulation sim{ cfg };
 
 	test_threads threads;
-	sim::asio::io_service ios(sim);
+	sim::asio::io_context ios(sim);
 	lt::disk_io_thread_pool pool(threads, ios);
 	threads.m_pool = &pool;
 	pool.set_max_threads(3);
@@ -199,7 +199,7 @@ TORRENT_TEST(disk_io_thread_pool_max_threads)
 	sim::simulation sim{ cfg };
 
 	test_threads threads;
-	sim::asio::io_service ios(sim);
+	sim::asio::io_context ios(sim);
 	lt::disk_io_thread_pool pool(threads, ios);
 	threads.m_pool = &pool;
 	// first check that the thread limit is respected when adding jobs

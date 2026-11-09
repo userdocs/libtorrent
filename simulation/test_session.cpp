@@ -184,7 +184,7 @@ TORRENT_TEST(tie_listen_ports)
 
 	sim::default_config network_cfg;
 	sim::simulation sim{network_cfg};
-	sim::asio::io_service ios { sim, addr("50.0.0.1")};
+	sim::asio::io_context ios { sim, addr("50.0.0.1")};
 
 	lt::session_proxy zombie;
 
@@ -230,7 +230,7 @@ TORRENT_TEST(construct_paused_session)
 
 	sim::default_config network_cfg;
 	sim::simulation sim{network_cfg};
-	sim::asio::io_service ios { sim, addr("50.0.0.1")};
+	sim::asio::io_context ios { sim, addr("50.0.0.1")};
 
 	lt::session_proxy zombie;
 

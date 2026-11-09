@@ -34,23 +34,28 @@ POSSIBILITY OF SUCH DAMAGE.
 #define TORRENT_IO_SERVICE_HPP_INCLUDED
 
 #if defined TORRENT_BUILD_SIMULATOR
+#ifndef BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT
+#define BOOST_ASIO_USE_TS_EXECUTOR_AS_DEFAULT
+#endif
 #include "simulator/simulator.hpp"
-#else
+#endif
+
 #include "libtorrent/aux_/disable_warnings_push.hpp"
+#if !defined TORRENT_BUILD_SIMULATOR
 #include <boost/asio/io_context.hpp>
+#endif
 #include <boost/asio/post.hpp>
 #include <boost/asio/dispatch.hpp>
 #include <boost/asio/executor_work_guard.hpp>
 #include <boost/version.hpp>
 #include "libtorrent/aux_/disable_warnings_pop.hpp"
-#endif // SIMULATOR
 
 #include "libtorrent/io_service_fwd.hpp"
 
 namespace libtorrent {
 
 #if defined TORRENT_BUILD_SIMULATOR
-	using io_service = sim::asio::io_service;
+	using io_service = sim::asio::io_context;
 #else
 	using io_service = boost::asio::io_context;
 #endif

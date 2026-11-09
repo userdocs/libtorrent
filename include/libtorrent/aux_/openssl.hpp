@@ -64,7 +64,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <boost/asio/ssl.hpp>
 #if defined TORRENT_BUILD_SIMULATOR
-#include "simulator/simulator.hpp"
+#include "simulator/ssl.hpp"
 #endif
 
 #include "libtorrent/aux_/disable_warnings_pop.hpp"

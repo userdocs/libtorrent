@@ -84,7 +84,6 @@ namespace libtorrent {
 	using tcp = sim::asio::ip::tcp;
 	using sim::asio::async_write;
 	using sim::asio::async_read;
-	using null_buffers = sim::asio::null_buffers;
 #else
 	using tcp = boost::asio::ip::tcp;
 	using udp = boost::asio::ip::udp;

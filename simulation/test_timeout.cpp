@@ -55,7 +55,7 @@ disconnects_t test_timeout(sim::configuration& cfg)
 {
 	sim::simulation sim{cfg};
 	auto const start_time = lt::clock_type::now();
-	std::unique_ptr<sim::asio::io_service> ios = make_io_service(sim, 0);
+	std::unique_ptr<sim::asio::io_context> ios = make_io_service(sim, 0);
 	lt::session_proxy zombie;
 
 	lt::session_params sp;
@@ -132,7 +132,7 @@ struct slow_upload : sim::default_config
 		auto it = m_outgoing.find(ip);
 		if (it != m_outgoing.end()) return sim::route().append(it->second);
 		it = m_outgoing.insert(it, std::make_pair(ip, std::make_shared<queue>(
-			std::ref(m_sim->get_io_service())
+			std::ref(m_sim->get_io_context())
 			, rate * 1000
 			, lt::duration_cast<duration>(milliseconds(rate / 2))
 			, 200 * 1000, "slow upload rate")));
@@ -157,7 +157,7 @@ disconnects_t test_no_interest_timeout(int const num_peers
 	sim::default_config cfg;
 	sim::simulation sim{cfg};
 	auto const start_time = lt::clock_type::now();
-	std::unique_ptr<sim::asio::io_service> ios = make_io_service(sim, 0);
+	std::unique_ptr<sim::asio::io_context> ios = make_io_service(sim, 0);
 	lt::session_proxy zombie;
 
 	sp.settings.set_int(settings_pack::alert_mask, alert_category::all & ~alert_category::stats);

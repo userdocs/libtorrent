@@ -88,21 +88,21 @@ TORRENT_TEST(optimistic_unchoke)
 	auto ses = std::make_shared<lt::session>(std::ref(pack), std::ref(ios));
 	ses->async_add_torrent(atp);
 
-	std::vector<std::shared_ptr<sim::asio::io_service>> io_service;
+	std::vector<std::shared_ptr<sim::asio::io_context>> io_context;
 	std::vector<std::shared_ptr<peer_conn>> peers;
 
 	print_alerts(*ses);
 
-	sim::timer t(sim, lt::seconds(0), [&](boost::system::error_code const&)
+	sim::timer t(sim, lt::milliseconds(1), [&](boost::system::error_code const&)
 	{
 		for (int i = 0; i < num_nodes; ++i)
 		{
-			// create a new io_service
+			// create a new io_context
 			char ep[30];
 			std::snprintf(ep, sizeof(ep), "50.0.%d.%d", (i + 1) >> 8, (i + 1) & 0xff);
-			io_service.push_back(std::make_shared<sim::asio::io_service>(
+			io_context.push_back(std::make_shared<sim::asio::io_context>(
 				std::ref(sim), addr(ep)));
-			peers.push_back(std::make_shared<peer_conn>(std::ref(*io_service.back())
+			peers.push_back(std::make_shared<peer_conn>(std::ref(*io_context.back())
 				, [&,i](int msg, char const* /* buf */, int /* len */)
 				{
 					choke_state& cs = peer_choke_state[i];
